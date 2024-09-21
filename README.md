@@ -6,7 +6,7 @@
 This project is a **Disaster Management System** designed to help with crisis management, volunteer coordination, donations, and more. It consists of two main parts:
 
 1. **Frontend**: Built with Next.js (in the `DisasterManagementFrontend` folder).
-2. **Backend**: Built with ASP.NET (in the `DisasterManagementBackend` folder).
+2. **Backend**: Built with ASP.NET (in the `DisasterManagement` folder).
 
 ### Features
 - **Admin**: Verify volunteers, assign tasks, manage crises.
