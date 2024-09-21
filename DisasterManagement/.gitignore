@@ -1,0 +1,50 @@
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.vscode/
+.vs/
+.launchSettings.json
+
+# Ignore JetBrains Rider/IDEA/WebStorm files
+.idea/
+*.sln.iml
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore logs, npm debug files, etc.
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore Visual Studio Code workspace settings
+.vscode/
+
+# Ignore coverage reports
+coverage/
+
+# Ignore any other temporary files
+*.log
+.env
+
+# Ignore backup files
+*.bak
+*.old
+
+# Ignore NuGet packages
+packages/
+
+# Ignore static web assets
+/staticwebassets/
+
+# Ignore additional configurations
+*.Config/Transformation.config
+
+# Ignore additional build-related files
+*.tar.gz
+*.zip
