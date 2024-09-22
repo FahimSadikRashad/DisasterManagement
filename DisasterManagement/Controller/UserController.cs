@@ -2,7 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using DisasterManagement.Data;
 using DisasterManagement.Dtos;
 using DisasterManagement.Models;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Cors;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -17,9 +21,9 @@ public class UserController : ControllerBase
 
     // Get all users (Response: 200 OK)
     [HttpGet]
-    public ActionResult<IEnumerable<UserDto>> GetUsers()
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
-        var users = _context.Users
+        var users = await _context.Users
             .Select(u => new UserDto
             {
                 Id = u.Id,
@@ -27,16 +31,30 @@ public class UserController : ControllerBase
                 FullName = u.FullName,
                 PhoneNumber = u.PhoneNumber,
                 Role = u.Role
-            }).ToList();
+            }).ToListAsync();
 
         return Ok(users);
     }
 
+    // [EnableCors]
+    // User login (Response: 200 OK or 404 Not Found)
+    [HttpPost("login")]
+    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto loginDto)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.PhoneNumber == loginDto.Email && u.Password == loginDto.Password && u.Role == loginDto.Role);
+
+        if (user == null)
+            return NotFound("User not found");
+
+        return Ok(new LoginResponseDto { Email = user.Username, Role = user.Role });
+    }
+
     // Get a single user by id (Response: 200 OK or 404 Not Found)
     [HttpGet("{id}")]
-    public ActionResult<UserDto> GetUser(int id)
+    public async Task<ActionResult<UserDto>> GetUser(int id)
     {
-        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null)
             return NotFound("User not found");
@@ -55,7 +73,7 @@ public class UserController : ControllerBase
 
     // Create a new user (Response: 201 Created or 400 Bad Request)
     [HttpPost]
-    public ActionResult<UserDto> CreateUser(UserCreateDto userCreateDto)
+    public async Task<ActionResult<UserDto>> CreateUser(UserCreateDto userCreateDto)
     {
         var user = new User
         {
@@ -67,7 +85,7 @@ public class UserController : ControllerBase
         };
 
         _context.Users.Add(user);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         var userDto = new UserDto
         {
@@ -83,9 +101,9 @@ public class UserController : ControllerBase
 
     // Update a user (Response: 204 No Content or 404 Not Found)
     [HttpPut("{id}")]
-    public IActionResult UpdateUser(int id, UserCreateDto userUpdateDto)
+    public async Task<IActionResult> UpdateUser(int id, UserCreateDto userUpdateDto)
     {
-        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null)
             return NotFound("User not found");
@@ -96,22 +114,22 @@ public class UserController : ControllerBase
         user.PhoneNumber = userUpdateDto.PhoneNumber;
         user.Role = userUpdateDto.Role;
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
     // Delete a user (Response: 204 No Content or 404 Not Found)
     [HttpDelete("{id}")]
-    public IActionResult DeleteUser(int id)
+    public async Task<IActionResult> DeleteUser(int id)
     {
-        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null)
             return NotFound("User not found");
 
         _context.Users.Remove(user);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
