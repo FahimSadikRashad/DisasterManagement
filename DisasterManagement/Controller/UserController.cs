@@ -2,11 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using DisasterManagement.Data;
 using DisasterManagement.Dtos;
 using DisasterManagement.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Cors;
+
 
 [ApiController]
 [Route("api/[controller]")]

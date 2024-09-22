@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using DisasterManagement.Data;
 using DisasterManagement.Dtos;
 using DisasterManagement.Models;
-using System.Linq;
+
 
 [ApiController]
 [Route("api/[controller]")]

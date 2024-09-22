@@ -2,9 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using DisasterManagement.Data;
 using DisasterManagement.Dtos;
 using DisasterManagement.Models;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 [ApiController]
@@ -120,5 +117,23 @@ public class CrisisController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    // New endpoint to get all volunteers assigned to a crisis
+    [HttpGet("{id}/volunteers")]
+    public async Task<ActionResult<IEnumerable<VolunteerDto>>> GetVolunteersInCrisis(int id)
+    {
+        var volunteersInCrisis = await _context.VolunteerCrises
+            .Where(vc => vc.CrisisId == id)
+            .Select(vc => new VolunteerDto
+            {
+                Id = vc.Volunteer.Id,
+                FullName = vc.Volunteer.FullName,
+                Age = vc.Volunteer.Age,
+                PhoneNumber = vc.Volunteer.PhoneNumber,
+                AssignedTask = vc.Volunteer.AssignedTask
+            }).ToListAsync();
+
+        return Ok(volunteersInCrisis);
     }
 }

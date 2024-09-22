@@ -12,6 +12,11 @@ namespace DisasterManagement.Data
         public DbSet<Donation> Donations { get; set; }
         public DbSet<Crisis> Crises { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
+
+        public DbSet<Volunteer> Volunteers { get; set; }
+        public DbSet<Models.Task> Tasks { get; set;}         
+        public DbSet<VolunteerCrisis> VolunteerCrises { get; set; }
+
     }
     
 }
