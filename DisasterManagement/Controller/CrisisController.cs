@@ -3,6 +3,9 @@ using DisasterManagement.Data;
 using DisasterManagement.Dtos;
 using DisasterManagement.Models;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -17,9 +20,9 @@ public class CrisisController : ControllerBase
 
     // Get all crises (Response: 200 OK)
     [HttpGet]
-    public ActionResult<IEnumerable<CrisisDto>> GetCrises()
+    public async Task<ActionResult<IEnumerable<CrisisDto>>> GetCrises()
     {
-        var crises = _context.Crises
+        var crises = await _context.Crises
             .Select(c => new CrisisDto 
             {
                 Id = c.Id,
@@ -27,18 +30,19 @@ public class CrisisController : ControllerBase
                 Description = c.Description,
                 Location = c.Location,
                 Severity = c.Severity,
-                IsApproved = c.IsApproved
-            }).ToList();
+                IsApproved = c.IsApproved,
+                Date = c.Date
+            }).ToListAsync();
 
         return Ok(crises);
     }
 
     // Get a single crisis by id (Response: 200 OK or 404 Not Found)
     [HttpGet("{id}")]
-    public ActionResult<CrisisDto> GetCrisis(int id)
+    public async Task<ActionResult<CrisisDto>> GetCrisis(int id)
     {
-        var crisis = _context.Crises.FirstOrDefault(c => c.Id == id);
-        
+        var crisis = await _context.Crises.FindAsync(id);
+
         if (crisis == null)
             return NotFound("Crisis not found");
 
@@ -57,7 +61,7 @@ public class CrisisController : ControllerBase
 
     // Create a new crisis (Response: 201 Created or 400 Bad Request)
     [HttpPost]
-    public ActionResult<CrisisDto> AddCrisis(CrisisCreateDto crisisCreateDto)
+    public async Task<ActionResult<CrisisDto>> AddCrisis([FromBody] CrisisCreateDto crisisCreateDto)
     {
         var crisis = new Crisis
         {
@@ -65,11 +69,12 @@ public class CrisisController : ControllerBase
             Description = crisisCreateDto.Description,
             Location = crisisCreateDto.Location,
             Severity = crisisCreateDto.Severity,
-            IsApproved = false // Admin will approve later
+            Help = crisisCreateDto.Help,
+            IsApproved = false // Set as false by default, awaiting admin approval
         };
 
         _context.Crises.Add(crisis);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         var crisisDto = new CrisisDto
         {
@@ -78,6 +83,7 @@ public class CrisisController : ControllerBase
             Description = crisis.Description,
             Location = crisis.Location,
             Severity = crisis.Severity,
+            Help = crisis.Help,
             IsApproved = crisis.IsApproved
         };
 
@@ -86,34 +92,32 @@ public class CrisisController : ControllerBase
 
     // Update a crisis (Response: 204 No Content or 404 Not Found)
     [HttpPut("{id}")]
-    public IActionResult UpdateCrisis(int id, CrisisCreateDto crisisUpdateDto)
+    public async Task<IActionResult> UpdateCrisis(int id, CrisisPutDto crisisUpdateDto)
     {
-        var crisis = _context.Crises.FirstOrDefault(c => c.Id == id);
+        var crisis = await _context.Crises.FindAsync(id);
 
         if (crisis == null)
             return NotFound("Crisis not found");
 
-        crisis.Title = crisisUpdateDto.Title;
-        crisis.Description = crisisUpdateDto.Description;
-        crisis.Location = crisisUpdateDto.Location;
-        crisis.Severity = crisisUpdateDto.Severity;
+        crisis.Severity= crisisUpdateDto.Severity;
+        crisis.IsApproved = crisisUpdateDto.IsApproved;
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
     // Delete a crisis (Response: 204 No Content or 404 Not Found)
     [HttpDelete("{id}")]
-    public IActionResult DeleteCrisis(int id)
+    public async Task<IActionResult> DeleteCrisis(int id)
     {
-        var crisis = _context.Crises.FirstOrDefault(c => c.Id == id);
+        var crisis = await _context.Crises.FindAsync(id);
 
         if (crisis == null)
             return NotFound("Crisis not found");
 
         _context.Crises.Remove(crisis);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
